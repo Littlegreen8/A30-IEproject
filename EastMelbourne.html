@@ -1,0 +1,233 @@
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>East Melbourne Map</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+    <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.js'></script>
+    <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v1.3.1/mapbox-gl.css' rel='stylesheet' />
+    <!-- The magic of unpkg lets us use a module designed for NPM directly in the browser. -->
+    <script src='https://unpkg.com/mapbox@1.0.0-beta7/dist/mapbox-sdk.min.js'></script>
+     <!-- Need these! -->
+    <script src="https://d3js.org/d3-collection.v1.min.js"></script>
+    <script src="https://d3js.org/d3-dispatch.v1.min.js"></script>
+    <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+    <script src="https://d3js.org/d3-request.v1.min.js"></script>
+        
+    <!-- -->
+    <style>
+        body { margin:0; padding:0; }
+        #map { position:absolute; top:0; bottom:0; width:100%; }
+        h2 { background:#ff9;padding:0.5em;border:1px solid gray; border-radius:1em; }
+    </style>
+</head>
+<body>
+
+<div id='map'></div>
+<script>
+    
+function def(a, b) {
+    return a !== undefined ? a : b;
+}
+    
+var Bsites = {};
+var bbbsites = {};
+    
+function onLoad() {
+    
+    // get csv with main metadata about each event
+    d3.csv("eastmelbourne.csv", function(j) {
+        j.forEach(function(site) {
+            Bsites[site.id] = def(Bsites[site.id], {});
+            Bsites[site.id].name = site.name;
+            Bsites[site.id].address = site.address;
+            Bsites[site.id].spaces = site.spaces;
+            Bsites[site.id].Location = site.Location;
+            Bsites[site.id].x=site.x;
+            Bsites[site.id].y=site.y;           
+        });
+        metadataLoaded();
+    });
+    
+};
+
+var bbb = [
+  {
+    "id": 1,
+    "name": "Department of Parliamentry Services",
+    "address": "55 St Andrews Place",
+    "CLUE small area": "East Melbourne",
+    "spaces": 30,
+    "x": 144.9755868,
+    "y": -37.81264492,
+    "Location": "(-37.81264492, 144.9755868)"
+  },
+  {
+    "id": 2,
+    "name": "St Andrews Place Apartments",
+    "address": "10 St Andrews Place",
+    "CLUE small area": "East Melbourne",
+    "spaces": 72,
+    "x": 144.9773405,
+    "y": -37.81154319,
+    "Location": "(-37.81154319, 144.9773405)"
+  },
+  {
+    "id": 4,
+    "name": "State Public Offices",
+    "address": "240-254 Victoria Parade",
+    "CLUE small area": "East Melbourne",
+    "spaces": 20,
+    "x": 144.9799791,
+    "y": -37.80919457,
+    "Location": "(-37.80919457, 144.9799791)"
+  },
+  {
+    "id": 5,
+    "name": "Park Hyatt Melbourne",
+    "address": "33-61 Cathedral Place",
+    "CLUE small area": "East Melbourne",
+    "spaces": 30,
+    "x": 144.9765098,
+    "y": -37.81131183,
+    "Location": "(-37.81131183, 144.9765098)"
+  },
+  {
+    "id": 6,
+    "name": "One East Melbourne",
+    "address": "239-293 Wellington Parade South",
+    "CLUE small area": "East Melbourne",
+    "spaces": 50,
+    "x": 144.9759275,
+    "y": -37.81642072,
+    "Location": "(-37.81642072, 144.9759275)"
+  },
+  {
+    "id": 7,
+    "name": "James Goold House",
+    "address": "224-230 Victoria Parade",
+    "CLUE small area": "East Melbourne",
+    "spaces": 27,
+    "x": 144.9794241,
+    "y": -37.80913587,
+    "Location": "(-37.80913587, 144.9794241)"
+  },
+  {
+    "id": 8,
+    "name": "The Eye and Ear Hospital Car Park",
+    "address": "410-418 Albert Street",
+    "CLUE small area": "East Melbourne",
+    "spaces": 12,
+    "x": 144.977085,
+    "y": -37.80923117,
+    "Location": "(-37.80923117, 144.977085)"
+  },
+  {
+    "id": 9,
+    "name": "Royal Eye & Ear Hospital",
+    "address": "126-142 Victoria Parade",
+    "CLUE small area": "East Melbourne",
+    "spaces": 36,
+    "x": 144.9762558,
+    "y": -37.80899054,
+    "Location": "(-37.80899054, 144.9762558)"
+  }
+];
+    
+    
+console.log(bbb);
+console.log(Bsites);
+    
+function sitesToGeoJson(events) {
+    var mapData = {
+        type:'FeatureCollection',
+        features: []
+    };
+    Object.keys(Bsites).forEach(function(id) {
+        mapData.features.push({
+            type: 'Feature',
+            properties: Bsites[id],
+            geometry: {
+                type: 'Point',
+
+                coordinates: [
+                    Bsites[id].x,
+                    Bsites[id].y
+                ]
+            }
+        });
+    });
+    
+    return mapData;
+}
+
+    
+var metadataCount = 0;
+
+function metadataLoaded() {
+   
+
+    var mapData = sitesToGeoJson(Bsites);
+    console.log(mapData);
+
+    whenMapLoaded(function() {
+        // add the map data 
+        map.addSource('Bsites', {
+            type: 'geojson',
+            data: mapData
+        });
+
+        // add a style layer that depends on it.
+        map.addLayer({
+            id: 'Bsites-pins',
+            source: 'Bsites',
+            'type': 'symbol',
+            layout: {
+                'icon-image': 'bicycle-15',
+                'icon-allow-overlap': false,
+                'icon-size': 1
+
+            }, paint: {
+                'icon-opacity': 0.82,
+                'icon-color': '#00aecb'
+            }
+        });
+
+        // When we click on a pin, show a popup.
+        map.on('click', 'Bsites-pins', function (e) {
+            var event = e.features[0];
+            new mapboxgl.Popup()
+                .setLngLat(event.geometry.coordinates)
+                .setHTML(                    
+                    '<h2>' + event.properties.name + '</h2>' + 
+                    event.properties.address + 
+                    '<p>' + 'Bicycle Parking Spaces' + ': ' + event.properties.spaces + '</p>' 
+                ).addTo(map);
+        });
+
+        map.on('mouseenter', 'Bsites-pins', function () {
+            map.getCanvas().style.cursor = 'pointer';
+        });
+
+        map.on('mouseleave', 'Bsites-pins', function () {
+            map.getCanvas().style.cursor = '';
+        });
+    });
+}
+
+function whenMapLoaded(f) {
+    return map.loaded() ? f() : map.once('load', f);
+}
+
+    
+mapboxgl.accessToken = 'pk.eyJ1IjoiY2l0eW9mbWVsYm91cm5lIiwiYSI6ImNpejdob2J0czAwOWQzM21ubGt6MDVqaHoifQ.55YbqeTHWMK_b6CEAmoUlA';
+var map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/streets-v8',
+    center: [144.9780, -37.8130],
+    zoom: 15.5
+});
+    onLoad(); 
+</script>
+
+</body>
+</html>
