@@ -11,11 +11,9 @@
           <a class="nav-link active" href="http://safetyatwork.ga/">Iteration  1</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/6202.0Mar%202019?OpenDocument">Employment Data</a>
+          <a class="nav-link" href="https://gigwelfare.tk/">Iteration 2</a>
         </li>
         <li class="nav-item">
-          <a class="nav-link" href="https://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/6302.0Nov%202018?OpenDocument">Wage Data</a>
+          <a class="nav-link" href="https://gigwelfare.ml">Current Iteration</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link disabled" href="#">Supported By Australian Bureau Of Statistics(ABS) and FIT Monash</a>
-        </li>
+        
