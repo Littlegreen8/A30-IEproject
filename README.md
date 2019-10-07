@@ -8,7 +8,7 @@
       <p>The following links provides project developing history and related artifacts</p>
       <ul class="nav nav-pills flex-column">
         <li class="nav-item">
-          <a class="nav-link active" href="http://safetyatwork.ga/">Iteration  1</a>
+          <a class="nav-link active" href="https://gigwelfare.cf/itera_1//">Iteration  1</a>
         </li>
         <li class="nav-item">
           <a class="nav-link" href="https://gigwelfare.tk/">Iteration 2</a>
